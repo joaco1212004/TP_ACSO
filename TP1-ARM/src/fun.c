@@ -174,7 +174,7 @@ void adds_shifted_register(int64_t instruction) {
 
     ShiftType shift_type = DecodeShift(shift); // Decode the shift type
     int64_t shift_amount = imm6;
-    int64_t shift_amount = m;
+    //int64_t shift_amount = m;
 
     switch (shift_type) {
         case LSL:
@@ -228,14 +228,44 @@ void cmp_extended_register(int64_t instruction) {
     check_flags(result);
 }
 
-void cmp_immediate(int64_t instruction) {
-    int64_t n = (instruction >> 5) & 0x1F;
+// void cmp_immediate(int64_t instruction) {
+//     int64_t n = (instruction >> 5) & 0x1F;
+//     int64_t imm12 = (instruction >> 10) & 0xFFF;
+
+//     int64_t result = CURRENT_STATE.REGS[n] - imm12;
+
+//     // Update flags
+//     check_flags(result);
+// }
+
+void cmp_extended(int64_t instruction) {
+    int64_t rd = instruction & 0x1F; // registro 0, no alterar su valor
+    int64_t rn = (instruction >> 5) & 0x1F;
+    int64_t rm = (instruction >> 16) & 0x1F;
+
+    if ((CURRENT_STATE.REGS[rn] - CURRENT_STATE.REGS[rm]) < 0) {
+        NEXT_STATE.FLAG_N = 1;
+    } else if ((CURRENT_STATE.REGS[rn] - CURRENT_STATE.REGS[rm]) == 0) {
+        NEXT_STATE.FLAG_Z = 1;
+    } else {
+        NEXT_STATE.FLAG_N = 0;
+        NEXT_STATE.FLAG_Z = 0;
+    }
+}
+
+void cmp_immediate (int64_t instruction) {
+    int64_t rd = instruction & 0x1F; // registro 0, no alterar su valor
+    int64_t rn = (instruction >> 5) & 0x1F;
     int64_t imm12 = (instruction >> 10) & 0xFFF;
 
-    int64_t result = CURRENT_STATE.REGS[n] - imm12;
-
-    // Update flags
-    check_flags(result);
+    if (CURRENT_STATE.REGS[rn] - imm12 < 0) {
+        NEXT_STATE.FLAG_N = 1;
+    } else if (CURRENT_STATE.REGS[rn] - imm12 == 0) {
+        NEXT_STATE.FLAG_Z = 1;
+    } else {
+        NEXT_STATE.FLAG_N = 0;
+        NEXT_STATE.FLAG_Z = 0;
+    }
 }
 
 void eor_shift_reg(int64_t* xd, int64_t* xn, int64_t* xm) {

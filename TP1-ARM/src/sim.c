@@ -38,10 +38,16 @@ void process_instruction () {
             subs_extended_register(instruction);
 
         }
+    } else if (((instruction >> 21) == 0b11101011000) && ((instruction & 0b11111) == 0b11111)){ // CMP (immediate) C6-589 y 591
+        printf("I'm in CMP immediate\n");
+
+        cmp_extended(instruction);
+
     } else if (instruction >> 24 == 0b11110001) {
         if ((instruction & 0x1F) == 0b11111) { // cmp (immediate) C6-591
             printf("I'm in cmp immediate\n");
             cmp_immediate(instruction);
+
         } else {                              // subs (immediate) C6-936
             printf("I'm in subs immediate\n");
             subs_immediate(instruction);
@@ -100,6 +106,7 @@ void process_instruction () {
         int64_t m = (instruction >> 16) & 0x1F;
 
         orr_shift_reg(&d, &n, &m);
+
     } else if (instruction >> 26 == 0b000101) { // b C6-550
         printf("I'm in b\n");
 
