@@ -160,6 +160,35 @@ void subs_immediate(int64_t instruction) {
     check_flags(result);
 }
 
+void add_immediate (int64_t instruction){
+    int64_t rd = instruction & 0x1F; 
+    int64_t rn = (instruction >> 5) & 0x1F;
+    int64_t imm12 = (instruction >> 10) & 0xFFF;
+    int64_t shift = (instruction >> 22) & 0x3;
+
+    switch (shift) {
+        case 0:
+            // ZeroExtend(imm12, 64);
+            break;
+        case 1:
+            imm12 <<= 12;
+            break;
+        default:
+            RUN_BIT = 0;
+            return;
+    }
+
+    NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] + imm12;
+}
+
+void add_extended (int64_t instruction){
+    int64_t rd = instruction & 0x1F; 
+    int64_t rn = (instruction >> 5) & 0x1F;
+    int64_t rm = (instruction >> 16) & 0x1F;
+
+    NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] + CURRENT_STATE.REGS[rm];
+}
+
 void adds_shifted_register(int64_t instruction) {
     int64_t d = instruction & 0x1F;
     int64_t n = (instruction >> 5) & 0x1F;
@@ -203,6 +232,14 @@ void adds_shifted_register(int64_t instruction) {
     NEXT_STATE.REGS[d] = result;
 
     check_flags(result);
+}
+
+void mul (int64_t instruction){
+    int64_t rd = instruction & 0x1F; 
+    int64_t rn = (instruction >> 5) & 0x1F;
+    int64_t rm = (instruction >> 16) & 0x1F;
+
+    NEXT_STATE.REGS[rd] = CURRENT_STATE.REGS[rn] * CURRENT_STATE.REGS[rm];
 }
 
 void ands(int64_t instruction) {

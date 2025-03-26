@@ -126,6 +126,18 @@ void process_instruction () {
         int cond = (instruction >> 12) & 0xF;
 
         b_conditional(imm19, cond);
+    } else if ((instruction >> 24) == 0b10010001){ // ADD immediate c6-525
+        printf("I'm in ADD immediate\n");
+
+        add_immediate(instruction);
+    } else if ((instruction >> 21) == 10101011001){ // ADD extended c6-529
+        printf("I'm in ADD extended\n");
+
+        add_extended(instruction);
+    } else if (((instruction >> 21) == 0b10011011000) && (((instruction >> 10) & 0x1F) == 0b11111)){
+        printf("I'm in mul\n");
+
+        mul(instruction);
     }
 
     CURRENT_STATE.PC += 4;
