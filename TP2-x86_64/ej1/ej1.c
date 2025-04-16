@@ -1,17 +1,52 @@
 #include "ej1.h"
 
-string_proc_list* string_proc_list_create(void){
+string_proc_list* string_proc_list_create(void) {
+    string_proc_list* nueva = malloc(sizeof(string_proc_list));
+    if (!nueva) return NULL;
+    nueva -> first = nueva -> last = NULL;
+    return nueva;
 }
 
-string_proc_node* string_proc_node_create(uint8_t type, char* hash){
+string_proc_node* string_proc_node_create(uint8_t type, char* hash) {
+    string_proc_node* node = (string_proc_node*) malloc(sizeof(string_proc_node));
+    if (!node) return NULL;
+    node -> type = type;
+    node -> hash = hash;
+	node -> next = NULL;
+    node -> previous = NULL;
+    return node;
 }
 
-void string_proc_list_add_node(string_proc_list* list, uint8_t type, char* hash){
+void string_proc_list_add_node(string_proc_list* list, uint8_t type, char* hash) {
+    string_proc_node* new_node = string_proc_node_create(type, hash);
+	if (!new_node) return;
+	if (!list) {free(new_node); return;}
+    if (!(list -> first)){
+        list -> first = new_node;
+        list -> last = new_node;
+		return;
+    } 
+	list -> last -> next = new_node;
+	new_node -> previous = list -> last;
+	list -> last = new_node;
 }
 
-char* string_proc_list_concat(string_proc_list* list, uint8_t type , char* hash){
-}
+char* string_proc_list_concat(string_proc_list* list, uint8_t type, char* hash) {
+    if (!list || !hash) return NULL;
 
+    size_t len = strlen(hash) + 1;
+    for (string_proc_node* n = (list -> first); n; n = (n -> next))
+        if (((n -> type) == type ) && (n -> hash)) len += strlen(n -> hash);
+
+    char* out = malloc(len);
+    if (!out) return NULL;
+
+    strcpy(out, hash);
+    for (string_proc_node* n = (list -> first); n; n = (n -> next))
+        if (((n -> type) == type) && (n -> hash)) strcat(out, n -> hash);
+
+    return out;
+}
 
 /** AUX FUNCTIONS **/
 
