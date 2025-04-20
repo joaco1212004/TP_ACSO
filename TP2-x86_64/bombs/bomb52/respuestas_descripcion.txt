@@ -1,0 +1,13 @@
+Nombre: Joaquin Di Cola 
+Mail: jdicola@udesa.edu.ar
+
+Fases en general (Algo que aplique siempre, indistintamente de la fase): Utilize el comando "layout asm"; y, puse breakpoints en las fases y previo a que la bomba explote, en gdb; ya que me permitia ver como se corria el codigo en tiempo real y me permitia analizar que comando era que el ASM ejecutaba previo a la explosion. 
+Fase_1: Vi que al principio del codigo, se hacia un lea (Load Effective Address), o lo que yo interpreto como un llamado a memoria. Me llamo la atencion que esta era la unica linea comentada con una direccion, y que justo despues de eso se llama a la funcion para comparar strings. 
+        Accedi a la direccion con el comando "x/s" en gdb y me mostro la frase que esperaba recibir para desactivar la bomba.
+Fase_2: Vi que se hacia push de dos registros "rbp" y "rbx", por lo que me di cuenta que esperaba dos entradas. Vi que el valor de "rbp" se guardaba en "rax" con un MOV y con pasos intermedios tambien guardaba el otro valor en "rbx". Con esto hacia la cuenta: "edi = rbx + rax - 32". 
+        Mas tarde, en misterio vi, a traves de "layout regs" en gdb, que los registros alteraban sus valores cuando la funcion recorria un loop; un registro (el "rdx") dejaba de moverse despues de un par de iteraciones (con el numero 11 cargado). 
+        Termine descubriendo que ese 11 representa la cantidad de bits con "1", como valor, que tiene que tener el valor cargado en "edi". Propuse "edi = 2047" (once 1s, satisface la condicion), y busque dos inputs que cumplan con la ecuacion que mencione previamente.
+Fase_3: Lo priemero que capto mi atencion fue la linea comentada con una direccion que dice "0x4c7099" accedi y me devolvio "%s %d", por lo que supe que esperaba: un string, espacio, un numero; en ese orden. Despues de mucho probar, me di cuenta que hay varios CMP, entonces los empeze a investigar.
+        Busque en ambas funciones, dentro de la fase 3, y note que "readlines" guarda en una lista todas las palabras de "palabras.txt" y que la funcion "cuenta" hace una busqueda binaria para encontrar la palabra ingresada y guarda cuantos "cortes" le hizo a la lista para hacer la busqueda y lo guarda. 
+        Esto se relaciona, porque me llamo la atencion que justo despues de cuenta hace un CMP distinto, el CMPL y que justo despues hace un JLE (Jump if less or equal), despues de buscar vi que checkea que haya hecho mas de 6 comparaciones para encontrar la palabra que ingrese, y que la cantidad de comparaciones que le tomo sea igual al numero que ingrese.
+        Finalmente hice el script en python, llamado "py.py" para ver que palabras dentro de "palabras.txt" cumplen esta condicion y agarre "ademar 7".
